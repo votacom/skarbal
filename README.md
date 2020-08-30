@@ -12,3 +12,5 @@ Differences to the Gregorian calendar include:
 * The Skarbal calendar repeats itself every 128 years (as opposed to every 400 years of the Gregorian calendar). Every epoch of 128 years contains 31 leap years. The years of an epoch are numbered 0 thru 127. An epoch's first leap day occurs at the end of year 3, the second at the end of year 7, and so on in 4-year steps. An epoch's last leap day occurs at the end of year 123. An epoch's final year is not a leap year.
 
 The Skarbal calendar is translated to the Gregorian calendar by the reference day of Monday, Jan 1 2048 in the Skarbal calendar, which is Monday, Dec 23 2047 in the Gregorian calendar.
+
+The Skarbal calendar was invented by Andreas Skarbal.
