@@ -14,3 +14,24 @@ Differences to the Gregorian calendar include:
 The Skarbal calendar is translated to the Gregorian calendar by the reference day of Monday, Jan 1 2048 in the Skarbal calendar, which is Monday, Dec 23 2047 in the Gregorian calendar.
 
 The Skarbal calendar was invented by Andreas Skarbal.
+
+## Structure of a Year
+
+Each year consists of four seasons, and each season consists of 3 months.
+
+| Month | Days |
+| ----- | ---- |
+| January (first month of winter season) | 30 |
+| February (second month of winter season) | 30 |
+| March (third month of winter season) | 31 |
+| April (first month of spring season) | 30 |
+| May (second month of spring season) | 30 |
+| June (third month of spring season) | 31 |
+| July (first month of summer season) | 30 |
+| August (second month of summer season) | 30 |
+| September (third month of summer season) | 31 |
+| October (first month of autumn season) | 30 |
+| November (second month of autumn season) | 30 |
+| December (third month of autumn season) | 32 (33 in leap years) |
+
+
