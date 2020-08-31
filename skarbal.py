@@ -1,17 +1,23 @@
+"""
+Reference implementation of the Skarbal calendar.
+"""
+
 # "the epoch" is Monday, Dec 23, 2047 (Gregorian) == Monday, Jan 1, 2048 (Skarbal)
-# leap years are every 4 years except every 128 years. At the end of year 3, there is a leap day. Year 4 starts a regular year. Year -1/127 has no leap day, because 0 is divisible by 128.
+# leap years are every 4 years except every 128 years. At the end of year 3, there is a leap day.
+# Year 4 starts a regular year. Year -1/127 has no leap day, because 0 is divisible by 128.
 # a 128-year epoch starts with Jan 1 of the year that is divisible by 128 (e.g. Jan 1 1920) and ends with Dec 32 (e.g. 2047).
 
 import datetime
 import math
 import locale
 
-# returns the diff number of days to the Epoch. The input is interpreted as Gregorian. Its type is datetime.date.
 def diff_greg(date):
+    """Return the diff number of days to the Epoch. The input is interpreted as a Gregorian datetime.date."""
     delta = date - datetime.date(2047, 12, 23)
     return delta.days
 
 class Skarbaldate:
+    """A date in the Skarbal calendar."""
     def __init__(self, year=2048, month=1, day=1): #default is epoch
         self.year=year
         self.month=month
@@ -45,7 +51,7 @@ class Skarbaldate:
         greg = datetime.date(2047, 12, 23)
         greg += datetime.timedelta(days=self.diff())
         return greg
-    
+
     def add(self, numdays): # adds the given number of days to this date.
         if numdays == 0:
             return
@@ -55,7 +61,7 @@ class Skarbaldate:
             self.year += 128 * math.floor(numdays/epoch_days)
         else:
             #numdays>=0.
-            if( numdays >= 366 ):
+            if numdays >= 366:
                 #advance full years:
                 self.year += math.floor(numdays/366)
                 # this day may not exist in the next year iff it's Dec 33.
@@ -74,18 +80,18 @@ class Skarbaldate:
                  self.day == 31 and self.month in [3,6,9,12] or \
                  self.day == 32 and self.month == 12 or \
                  self.day == 33 and self.month == 12 and self.isleapyear()
-        if( not day_ok ):
+        if not day_ok:
             self.day = 1
             self.month += 1
         month_ok = self.month <= 12
-        if( not month_ok ):
+        if not month_ok:
             self.month = 1
             self.year += 1
 
     def dayofweek(self): #returns 1 (Monday) thru 9 (Day of Neptune)
-        if( self.day == 32 ):
+        if self.day == 32:
             return 8 # day of Urane
-        if( self.day == 33 ):
+        if self.day == 33:
             return 9 # day of Neptune / leap day
         return (self.dayofyear()-1) % 7 + 1
     def dayofweek_us(self): #returns 0 (Sunday) thru 6 (Saturady), 7 (Day of Uranus), or 8 (Day of Neptune)
@@ -116,28 +122,24 @@ class Skarbaldate:
             locale_daykey = locale.ABDAY_1
         if dow <= 6:
             return locale.nl_langinfo(locale_daykey + dow)
-        elif locale.getlocale(locale.LC_TIME)[0].startswith('de'):
+        if locale.getlocale(locale.LC_TIME)[0].startswith('de'):
             if dow == 7:
                 if length=='long':
                     return 'Uranustag'
-                else:
-                    return 'Ur'
-            elif dow == 8:
+                return 'Ur'
+            if dow == 8:
                 if length=='long':
                     return 'Neptuntag'
-                else:
-                    return 'Ne'
+                return 'Ne'
         else: # fall back to English.
             if dow == 7:
                 if length=='long':
                     return 'Day of Uranus'
-                else:
-                    return 'Ura'
-            elif dow == 8:
+                return 'Ura'
+            if dow == 8:
                 if length=='long':
                     return 'Day of Neptune'
-                else:
-                    return 'Nep'
+                return 'Nep'
 
     # returns this date as a string representation under the given format string. See https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior for the format options. Only date format options are support, no time-within-day format options.
     def strftime(self, fmt=locale.nl_langinfo(locale.D_FMT)):
@@ -159,12 +161,12 @@ def main():
     long_fmt = '%A, %B %d %Y'
     greg = datetime.date.today()
     skar = Skarbaldate.fromgregorian(greg)
-    while(True):
+    while True:
         print('Gregorian: {}'.format(greg.strftime(fmt)))
         print('Skarbal: {}'.format(skar.strftime(fmt)))
         command = input('>> ').strip()
         try:
-            if( command == 'help' ):
+            if command == 'help':
                 print('Accepted commands are:')
                 print('a - advance date by 1 day')
                 print('t - set to today')
@@ -199,10 +201,9 @@ def main():
                 greg = skar.togregorian()
             else:
                 print("Could not interpret command. Type `help` to see available commands.")
-        except ValueError as e:
+        except ValueError as ex:
             print("A parsing error occured. Type `help` to see available commands. Error details:")
-            print(e)
+            print(ex)
 
 if __name__ == '__main__':
     main()
-
