@@ -1,5 +1,5 @@
 # "the epoch" is Monday, Dec 23, 2047 (Gregorian) == Monday, Jan 1, 2048 (Skarbal)
-# leap years are every 4 years except every 128 years. At the end of year 3, there is a leap day. Year 4 starts a regular year. Year 0 has no leap day, because 0 is divisible by 128.
+# leap years are every 4 years except every 128 years. At the end of year 3, there is a leap day. Year 4 starts a regular year. Year -1/127 has no leap day, because 0 is divisible by 128.
 # a 128-year epoch starts with Jan 1 of the year that is divisible by 128 (e.g. Jan 1 1920) and ends with Dec 32 (e.g. 2047).
 
 import datetime
