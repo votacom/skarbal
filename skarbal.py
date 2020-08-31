@@ -4,6 +4,7 @@
 
 import datetime
 import math
+import locale
 
 # returns the diff number of days to the Epoch. The input is interpreted as Gregorian. Its type is datetime.date.
 def diff_greg(date):
@@ -86,35 +87,80 @@ class Skarbaldate:
         if( self.day == 33 ):
             return 9 # day of Neptune / leap day
         return (self.dayofyear()-1) % 7 + 1
-
-    def strdow(self): #returns day of week as English string
+    def dayofweek_us(self): #returns 0 (Sunday) thru 6 (Saturady), 7 (Day of Uranus), or 8 (Day of Neptune)
         dow = self.dayofweek()
-        if( dow == 1 ):
-            return 'Monday'
-        if( dow == 2 ):
-            return 'Tuesday'
-        if( dow == 3 ):
-            return 'Wednesday'
-        if( dow == 4 ):
-            return 'Thursday'
-        if( dow == 5 ):
-            return 'Friday'
-        if( dow == 6 ):
-            return 'Saturday'
-        if( dow == 7 ):
-            return 'Sunday'
-        if( dow == 8 ):
-            return 'Day of Urane'
-        if( dow == 9 ):
-            return 'Day of Neptune'
+        if dow <= 7:
+            # rotate to Posix convention: first day is Sunday
+            dow %= 7
+        else:
+            dow -= 1
+        return dow
+
+    def weekofyear(self): #Week number of the year (Monday as the first day of the week). All days in a new year preceding the first Monday are considered to be in week 0.
+        doy = self.dayofyear()
+        doy = min(doy, 365) #last 1-2 days of the year still belong to the same week as the days before
+        return math.ceil(doy/7)
+
+    def weekofyear_us(self): #Week number of the year (Sunday as the first day of the week). All days in a new year preceding the first Sunday are considered to be in week 0.
+        week = self.weekofyear() - 1
+        if self.dayofweek() >= 7:
+            week += 1
+        return week
+
+    def strdow(self, length='long'): #returns day of week as a string in the language of the current locale, abbreviated if length=='short'.
+        dow = self.dayofweek_us()
+        if length=='long':
+            locale_daykey = locale.DAY_1
+        elif length=='short':
+            locale_daykey = locale.ABDAY_1
+        if dow <= 6:
+            return locale.nl_langinfo(locale_daykey + dow)
+        elif locale.getlocale(locale.LC_TIME)[0].startswith('de'):
+            if dow == 7:
+                if length=='long':
+                    return 'Uranustag'
+                else:
+                    return 'Ur'
+            elif dow == 8:
+                if length=='long':
+                    return 'Neptuntag'
+                else:
+                    return 'Ne'
+        else: # fall back to English.
+            if dow == 7:
+                if length=='long':
+                    return 'Day of Uranus'
+                else:
+                    return 'Ura'
+            elif dow == 8:
+                if length=='long':
+                    return 'Day of Neptune'
+                else:
+                    return 'Nep'
+
+    # returns this date as a string representation under the given format string. See https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior for the format options. Only date format options are support, no time-within-day format options.
+    def strftime(self, fmt=locale.nl_langinfo(locale.D_FMT)):
+        dic = {'a': self.strdow('short'), 'A': self.strdow('long'), 'w': format(self.dayofweek_us()), 'd': '{:02d}'.format(self.day), 'b': locale.nl_langinfo(locale.ABMON_1+self.month-1), 'B': locale.nl_langinfo(locale.MON_1+self.month-1), 'm': '{:02d}'.format(self.month), 'y': '{:02d}'.format(self.year % 100), 'Y': '{:04d}'.format(self.year), 'j': '{:03d}'.format(self.dayofyear()), 'U': '{:02d}'.format(self.weekofyear_us()), 'W': '{:02d}'.format(self.weekofyear()), '%': '%'}
+        if '%x' in fmt:
+            dic['x']=self.strftime()
+        for key, value in dic.items():
+            fmt = fmt.replace('%{}'.format(key), value)
+        return fmt
+
+    def __format__(self, fmt=locale.nl_langinfo(locale.D_FMT)): #same as .strftime.
+        return self.strftime(fmt)
 
 def main():
+    # set the locale to the user-default locale:
+    locale.setlocale(locale.LC_ALL, '')
+
+    fmt = locale.nl_langinfo(locale.D_FMT)
+    long_fmt = '%A, %B %d %Y'
     greg = datetime.date.today()
     skar = Skarbaldate.fromgregorian(greg)
-
     while(True):
-        print('Gregorian: {}'.format(greg.strftime('%a %x')))
-        print('Skarbal: {}'.format(skar))
+        print('Gregorian: {}'.format(greg.strftime(fmt)))
+        print('Skarbal: {}'.format(skar.strftime(fmt)))
         command = input('>> ').strip()
         try:
             if( command == 'help' ):
@@ -123,6 +169,19 @@ def main():
                 print('t - set to today')
                 print('g YYYY-MM-DD - set date to given Gregorian date')
                 print('s YYYY-MM-DD - set date to given Skarbal date')
+                print('format - prints the current format')
+                print('format STRING - sets the format to the given format string.')
+                print('format long - sets the format to a verbose one ({}).'.format(long_fmt))
+                print()
+                print('Supported date format codes: https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes')
+            elif command == 'format':
+                print(fmt)
+            elif command.startswith('format '):
+                fmt_string = command.split()[1]
+                if fmt_string == 'long':
+                    fmt = long_fmt
+                else:
+                    fmt = fmt_string
             elif command == 'a':
                 skar.advance()
                 greg = skar.togregorian()
