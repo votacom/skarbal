@@ -52,7 +52,7 @@ class Skarbaldate:
         if( numdays < 0 ):
             self.year -= 128
         else:
-            #numdays>0.
+            #numdays>=0.
             if( numdays >= 366 ):
                 #advance a full year:
                 self.year += 1
@@ -65,7 +65,7 @@ class Skarbaldate:
         missingdiff = targetdiff - self.diff()
         self.add(missingdiff)
     def isleapyear(self):
-        return self.year % 4 == 0 and self.year % 128 > 0
+        return (self.year+1) % 4 == 0 and (self.year+1) % 128 > 0
     def advance(self): # advance this date by 1 day.
         self.day += 1
         day_ok = self.day <= 30 or \
