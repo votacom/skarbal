@@ -47,16 +47,17 @@ class Skarbaldate:
         return greg
     
     def add(self, numdays): # adds the given number of days to this date.
-        if( numdays == 0 ):
+        if numdays == 0:
             return
         targetdiff = self.diff() + numdays
-        if( numdays < 0 ):
-            self.year -= 128
+        epoch_days = 366*128 #overestimation
+        if numdays < 0 or numdays >= epoch_days:
+            self.year += 128 * math.floor(numdays/epoch_days)
         else:
             #numdays>=0.
             if( numdays >= 366 ):
-                #advance a full year:
-                self.year += 1
+                #advance full years:
+                self.year += math.floor(numdays/366)
                 # this day may not exist in the next year iff it's Dec 33.
                 if( self.month == 12 and self.day == 33 ):
                     self.day = 32
