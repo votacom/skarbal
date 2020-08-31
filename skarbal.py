@@ -198,8 +198,9 @@ def main():
                 greg = skar.togregorian()
             else:
                 print("Could not interpret command. Type `help` to see available commands.")
-        except ValueError:
-            print("A parsing error occured. Type `help` to see available commands.")
+        except ValueError as e:
+            print("A parsing error occured. Type `help` to see available commands. Error details:")
+            print(e)
 
 if __name__ == '__main__':
     main()
